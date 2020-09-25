@@ -18,9 +18,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -51,6 +49,7 @@ public class Controller implements Initializable {
 
     private boolean authenticated;
     private String nickname;
+    private String login;
     private final String TITLE = "Флудилка";
 
     private Stage stage;
@@ -115,7 +114,8 @@ public class Controller implements Initializable {
                             }
 
                             if (str.startsWith("/authok")) {
-                                nickname = str.split(" ", 2)[1];
+                                nickname = str.split(" ", 3)[1];
+                                login = str.split(" ", 3)[2];
                                 setAuthenticated(true);
                                 break;
                             }
@@ -128,6 +128,7 @@ public class Controller implements Initializable {
                             }
 
                             textArea.appendText(str + "\n");
+
                         }
 
                         //цикл работы
@@ -136,6 +137,14 @@ public class Controller implements Initializable {
 
                             if (str.startsWith("/")) {
                                 if (str.equals("/end")) {
+
+                                    //==============//
+                                    String path = "server/src/main/java/history/history_" + login + ".txt";
+                                    try (FileOutputStream out = new FileOutputStream(path)) {
+                                        out.write(textArea.getText().getBytes());
+                                    }
+                                    //==============//
+
                                     break;
                                 }
                                 if (str.startsWith("/clientlist ")) {
