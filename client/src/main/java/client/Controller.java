@@ -51,6 +51,7 @@ public class Controller implements Initializable {
     private String nickname;
     private String login;
     private final String TITLE = "Флудилка";
+    private File file;
 
     private Stage stage;
     private Stage regStage;
@@ -117,6 +118,7 @@ public class Controller implements Initializable {
                                 nickname = str.split(" ", 3)[1];
                                 login = str.split(" ", 3)[2];
                                 setAuthenticated(true);
+
                                 break;
                             }
 
@@ -131,18 +133,26 @@ public class Controller implements Initializable {
 
                         }
 
+                        //==============//
+                        String path = "client/src/main/java/history/history_" + login + ".txt";
+                        file = new File(path);
+                        file.createNewFile();
+
+                        textArea.appendText(printLastNLines(path, 100));
+                        //==============//
+
                         //цикл работы
                         while (true) {
                             String str = in.readUTF();
+
 
                             if (str.startsWith("/")) {
                                 if (str.equals("/end")) {
 
                                     //==============//
-                                    String path = "server/src/main/java/history/history_" + login + ".txt";
-                                    try (FileOutputStream out = new FileOutputStream(path)) {
-                                        out.write(textArea.getText().getBytes());
-                                    }
+//                                    try (FileOutputStream out = new FileOutputStream(path)) {
+//                                        out.write(textArea.getText().getBytes());
+//                                    }
                                     //==============//
 
                                     break;
@@ -164,7 +174,7 @@ public class Controller implements Initializable {
                                 }
                                 //==============//
                             } else {
-                                textArea.appendText(str + "\n");
+//                                textArea.appendText(str + "\n");
                             }
                         }
                     } catch (RuntimeException e) {
@@ -186,6 +196,39 @@ public class Controller implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String printLastNLines(String path, int n) {
+        File file = new File(path);
+        String s = null;
+        StringBuilder sb = new StringBuilder();
+
+        try {
+            RandomAccessFile randomAccessFile = new RandomAccessFile(path, "r");
+            long position = file.length() - 1;
+            randomAccessFile.seek(position);
+
+            for (long i = position - 1; i >= 0; i--) {
+                randomAccessFile.seek(i);
+                char c = (char) randomAccessFile.read();
+                if (c == '\n') {
+                    n--;
+                    if (n == 0) {
+                        break;
+                    }
+                }
+                sb.append(c);
+            }
+
+            sb.reverse();
+            System.out.println(sb.toString());
+            s = sb.toString();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return s;
     }
 
     public void sendMsg(ActionEvent actionEvent) {
