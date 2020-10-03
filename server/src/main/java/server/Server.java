@@ -7,14 +7,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
     private List<ClientHandler> clients;
     private AuthService authService;
-
     private int PORT = 8189;
     ServerSocket server = null;
     Socket socket = null;
+    private ExecutorService executorService;
+
+    public ExecutorService getExecutorService() {
+        return executorService;
+    }
 
     public Server() {
         clients = new Vector<>();
@@ -26,6 +33,8 @@ public class Server {
         }
         authService = new DBAuthServise();
         //==============//
+
+        executorService = Executors.newFixedThreadPool(100);
 
         try {
             server = new ServerSocket(PORT);
